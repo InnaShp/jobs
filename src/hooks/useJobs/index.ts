@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { Job } from '@/components/JobSearch';
 
-interface UseJobsOptions {
+export interface UseJobsOptions {
   query: string;
   page?: number;
   numPages?: number;

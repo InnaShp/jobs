@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import useJobs from "@/hooks/useJobs";
 
 export interface Job {
@@ -27,8 +27,11 @@ interface JobSearchProps {
 const JobSearch = ({ searchQuery }: JobSearchProps) => {
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
 
+  const [page, setPage] = useState<number>(1);
+
   const { jobs, isLoading, isError } = useJobs({
     query: searchQuery || "developer jobs",
+    page,
   });
 
   useEffect(() => {
@@ -37,10 +40,16 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     setLikedJobs(likedJobsData);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
+
   const toggleLike = (job: Job, e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation when clicking the like button
-    const newLikedJobs = likedJobs.some(likedJob => likedJob.job_id === job.job_id)
-      ? likedJobs.filter(likedJob => likedJob.job_id !== job.job_id)
+    const newLikedJobs = likedJobs.some(
+      (likedJob) => likedJob.job_id === job.job_id
+    )
+      ? likedJobs.filter((likedJob) => likedJob.job_id !== job.job_id)
       : [...likedJobs, job];
 
     setLikedJobs(newLikedJobs);
@@ -59,7 +68,9 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
   if (isError) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
-        <p className="text-red-600">Error loading jobs. Please try again later.</p>
+        <p className="text-red-600">
+          Error loading jobs. Please try again later.
+        </p>
       </div>
     );
   }
@@ -83,7 +94,10 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
                 <div className="flex justify-between items-start">
                   <div className="flex items-start space-x-4">
                     <img
-                      src={job.employer_logo || "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"}
+                      src={
+                        job.employer_logo ||
+                        "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"
+                      }
                       alt={`${job.employer_name} logo`}
                       className="w-12 h-12 rounded-lg object-cover"
                     />
@@ -101,12 +115,20 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
                     <button
                       onClick={(e) => toggleLike(job, e)}
                       className={`text-gray-400 hover:text-red-500 transition-colors ${
-                        likedJobs.some(likedJob => likedJob.job_id === job.job_id) ? "text-red-500" : ""
+                        likedJobs.some(
+                          (likedJob) => likedJob.job_id === job.job_id
+                        )
+                          ? "text-red-500"
+                          : ""
                       }`}
                     >
                       <Heart
                         className={`h-6 w-6 ${
-                          likedJobs.some(likedJob => likedJob.job_id === job.job_id) ? "fill-current" : ""
+                          likedJobs.some(
+                            (likedJob) => likedJob.job_id === job.job_id
+                          )
+                            ? "fill-current"
+                            : ""
                         }`}
                       />
                     </button>
@@ -123,10 +145,28 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
                 </div>
               </Link>
             ))}
+            <div className="flex justify-center space-x-4 mt-6">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-gray-800"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <span className="px-4 py-2 text-gray-700 font-medium">
+                Page {page}
+              </span>
+              <button
+                onClick={() => setPage((prev) => prev + 1)}
+                className="px-4 py-2 bg-gray-200 rounded text-gray-800"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
           </>
         ) : (
           <div className="text-center text-gray-500 py-8">
-            No jobs found matching "{searchQuery || 'developer jobs'}"
+            No jobs found matching "{searchQuery || "developer jobs"}"
           </div>
         )}
       </div>
