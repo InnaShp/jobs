@@ -27,8 +27,8 @@ interface JobSearchProps {
 const JobSearch = ({ searchQuery }: JobSearchProps) => {
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
 
-  const { jobs } = useJobs({
-    query: "developer jobs in chicago",
+  const { jobs, isLoading, isError } = useJobs({
+    query: searchQuery || "developer jobs",
   });
 
   useEffect(() => {
@@ -47,9 +47,25 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     localStorage.setItem("likedJobs", JSON.stringify(newLikedJobs));
   };
 
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto p-8 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-4 text-gray-600">Loading jobs...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="max-w-4xl mx-auto p-8 text-center">
+        <p className="text-red-600">Error loading jobs. Please try again later.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto">
-
       {/* Search Results */}
       <div className="space-y-4">
         {jobs.length > 0 ? (
@@ -110,7 +126,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
           </>
         ) : (
           <div className="text-center text-gray-500 py-8">
-            No jobs found matching "developer jobs in chicago"
+            No jobs found matching "{searchQuery || 'developer jobs'}"
           </div>
         )}
       </div>
