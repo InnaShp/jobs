@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import AuthForm from "@/components/AuthForm";
 import Header from "@/components/Header";
+import JobSearch from "@/components/JobSearch";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,6 +44,7 @@ export default function Home() {
           </div>
         )}
       </main>
+      <JobSearch searchQuery={searchQuery} />
     </div>
   );
 }

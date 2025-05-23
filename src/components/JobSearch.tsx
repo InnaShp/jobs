@@ -1,0 +1,126 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Heart } from "lucide-react";
+import useJobs from "@/hooks/useJobs";
+
+export interface Job {
+  job_id: string;
+  employer_name: string;
+  employer_logo: string | null;
+  job_title: string;
+  job_description: string;
+  job_city: string;
+  job_country: string;
+  job_apply_link: string;
+  job_employment_type: string;
+  job_min_salary?: number;
+  job_max_salary?: number;
+  job_salary_currency?: string;
+  job_posted_at_datetime_utc?: string;
+  job_highlights?: {
+    Qualifications?: string[];
+    Responsibilities?: string[];
+  };
+}
+
+interface JobSearchProps {
+  searchQuery: string;
+}
+
+const JobSearch = ({ searchQuery }: JobSearchProps) => {
+  const [likedJobs, setLikedJobs] = useState<string[]>([]);
+
+  const { jobs } = useJobs({
+    query: "developer jobs in chicago",
+  });
+
+  useEffect(() => {
+    // Load liked jobs from localStorage
+    const likedJobIds = JSON.parse(localStorage.getItem("likedJobs") || "[]");
+    setLikedJobs(likedJobIds);
+  }, []);
+
+  const toggleLike = (jobId: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation when clicking the like button
+    const newLikedJobs = likedJobs.includes(jobId)
+      ? likedJobs.filter((id) => id !== jobId)
+      : [...likedJobs, jobId];
+
+    setLikedJobs(newLikedJobs);
+    localStorage.setItem("likedJobs", JSON.stringify(newLikedJobs));
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+
+      {/* Search Results */}
+      <div className="space-y-4">
+        {jobs.length > 0 ? (
+          <>
+            <div className="text-sm text-gray-600 mb-4">
+              Found {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
+              {searchQuery && ` matching "${searchQuery}"`}
+            </div>
+            {jobs.map((job: Job) => (
+              <Link
+                href={`/jobs/${job.job_id}`}
+                key={job.job_id}
+                className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex items-start space-x-4">
+                    <img
+                      src={job.employer_logo || "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"}
+                      alt={`${job.employer_name} logo`}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {job.job_title}
+                      </h3>
+                      <p className="text-gray-600">{job.employer_name}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+                      {job.job_employment_type}
+                    </span>
+                    <button
+                      onClick={(e) => toggleLike(job.job_id, e)}
+                      className={`text-gray-400 hover:text-red-500 transition-colors ${
+                        likedJobs.includes(job.job_id) ? "text-red-500" : ""
+                      }`}
+                    >
+                      <Heart
+                        className={`h-6 w-6 ${
+                          likedJobs.includes(job.job_id) ? "fill-current" : ""
+                        }`}
+                      />
+                    </button>
+                  </div>
+                </div>
+                <p className="mt-2 text-gray-500">
+                  {job.job_city}, {job.job_country}
+                </p>
+                <p className="mt-4 text-gray-700 line-clamp-2">
+                  {job.job_description}
+                </p>
+                <div className="mt-4 text-blue-600 hover:text-blue-800 font-medium">
+                  View Details →
+                </div>
+              </Link>
+            ))}
+          </>
+        ) : (
+          <div className="text-center text-gray-500 py-8">
+            No jobs found matching "developer jobs in chicago"
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default JobSearch;
