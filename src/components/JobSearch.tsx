@@ -26,10 +26,9 @@ interface JobSearchProps {
 
 const JobSearch = ({ searchQuery }: JobSearchProps) => {
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
-
   const [page, setPage] = useState<number>(1);
 
-  const { jobs, isLoading, isError } = useJobs({
+  const { jobs = [], isLoading, isError } = useJobs({
     query: searchQuery || "developer jobs",
     page,
   });
@@ -75,100 +74,101 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     );
   }
 
+  if (!jobs || jobs.length === 0) {
+    return (
+      <div className="max-w-4xl mx-auto mb-8">
+        <div className="text-center text-gray-500 py-8">
+          No jobs found matching "{searchQuery || "developer jobs"}"
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Search Results */}
+    <div className="max-w-4xl mx-auto mb-8">
       <div className="space-y-4">
-        {jobs.length > 0 ? (
-          <>
-            <div className="text-sm text-gray-600 mb-4">
-              Found {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
-              {searchQuery && ` matching "${searchQuery}"`}
-            </div>
-            {jobs.map((job: Job) => (
-              <Link
-                href={`/jobs/${job.job_id}`}
-                key={job.job_id}
-                className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex items-start space-x-4">
-                    <img
-                      src={
-                        job.employer_logo ||
-                        "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"
-                      }
-                      alt={`${job.employer_name} logo`}
-                      className="w-12 h-12 rounded-lg object-cover"
-                    />
-                    <div>
-                      <h3 className="text-xl font-semibold text-gray-900">
-                        {job.job_title}
-                      </h3>
-                      <p className="text-gray-600">{job.employer_name}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
-                      {job.job_employment_type}
-                    </span>
-                    <button
-                      onClick={(e) => toggleLike(job, e)}
-                      className={`text-gray-400 hover:text-red-500 transition-colors ${
-                        likedJobs.some(
-                          (likedJob) => likedJob.job_id === job.job_id
-                        )
-                          ? "text-red-500"
-                          : ""
-                      }`}
-                    >
-                      <Heart
-                        className={`h-6 w-6 ${
-                          likedJobs.some(
-                            (likedJob) => likedJob.job_id === job.job_id
-                          )
-                            ? "fill-current"
-                            : ""
-                        }`}
-                      />
-                    </button>
-                  </div>
+        <div className="text-sm text-gray-600 mb-4">
+          Found {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
+          {searchQuery && ` matching "${searchQuery}"`}
+        </div>
+        {jobs.map((job: Job) => (
+          <Link
+            href={`/jobs/${job.job_id}`}
+            key={job.job_id}
+            className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+          >
+            <div className="flex justify-between items-start">
+              <div className="flex items-start space-x-4">
+                <img
+                  src={
+                    job.employer_logo ||
+                    "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"
+                  }
+                  alt={`${job.employer_name} logo`}
+                  className="w-12 h-12 rounded-lg object-cover"
+                />
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {job.job_title}
+                  </h3>
+                  <p className="text-gray-600">{job.employer_name}</p>
                 </div>
-                <p className="mt-2 text-gray-500">
-                  {job.job_city}, {job.job_country}
-                </p>
-                <p className="mt-4 text-gray-700 line-clamp-2">
-                  {job.job_description}
-                </p>
-                <div className="mt-4 text-blue-600 hover:text-blue-800 font-medium">
-                  View Details →
-                </div>
-              </Link>
-            ))}
-            <div className="flex justify-center space-x-4 mt-6">
-              <button
-                disabled={page === 1}
-                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-gray-800"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <span className="px-4 py-2 text-gray-700 font-medium">
-                Page {page}
-              </span>
-              <button
-                onClick={() => setPage((prev) => prev + 1)}
-                className="px-4 py-2 bg-gray-200 rounded text-gray-800"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
+                  {job.job_employment_type}
+                </span>
+                <button
+                  onClick={(e) => toggleLike(job, e)}
+                  className={`text-gray-400 hover:text-red-500 transition-colors ${
+                    likedJobs.some(
+                      (likedJob) => likedJob.job_id === job.job_id
+                    )
+                      ? "text-red-500"
+                      : ""
+                  }`}
+                >
+                  <Heart
+                    className={`h-6 w-6 ${
+                      likedJobs.some(
+                        (likedJob) => likedJob.job_id === job.job_id
+                      )
+                        ? "fill-current"
+                        : ""
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
-          </>
-        ) : (
-          <div className="text-center text-gray-500 py-8">
-            No jobs found matching "{searchQuery || "developer jobs"}"
-          </div>
-        )}
+            <p className="mt-2 text-gray-500">
+              {job.job_city}, {job.job_country}
+            </p>
+            <p className="mt-4 text-gray-700 line-clamp-2">
+              {job.job_description}
+            </p>
+            <div className="mt-4 text-blue-600 hover:text-blue-800 font-medium">
+              View Details →
+            </div>
+          </Link>
+        ))}
+        <div className="flex justify-center space-x-4 mt-6">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50 text-gray-800"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="px-4 py-2 text-gray-700 font-medium">
+            Page {page}
+          </span>
+          <button
+            onClick={() => setPage((prev) => prev + 1)}
+            className="px-4 py-2 bg-gray-200 rounded text-gray-800"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
       </div>
     </div>
   );
