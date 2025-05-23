@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { useRouter } from 'next/navigation';
-import { User, Briefcase, FileText } from 'lucide-react';
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { Briefcase, FileText, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import * as Yup from "yup";
+import { CustomAlert } from "./Alert";
 
 interface UserProfile {
   name: string;
@@ -12,15 +13,37 @@ interface UserProfile {
   aboutMe: string;
 }
 
+interface AuthFormProps {
+  mode: "create" | "edit";
+  handleClose?: () => void;
+}
+
+const alertStyles = `
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+`;
+
 const validationSchema = Yup.object().shape({
   name: Yup.string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name must be less than 50 characters')
-    .required('Name is required'),
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be less than 50 characters")
+    .required("Name is required"),
   desiredJobTitle: Yup.string()
-    .min(2, 'Job title must be at least 2 characters')
-    .max(100, 'Job title must be less than 100 characters')
-    .required('Desired job title is required'),
+    .min(2, "Job title must be at least 2 characters")
+    .max(100, "Job title must be less than 100 characters")
+    .required("Desired job title is required"),
 });
 
 const initialValues: UserProfile = {
@@ -29,26 +52,83 @@ const initialValues: UserProfile = {
   aboutMe: "",
 };
 
-const AuthForm = () => {
+// Move className constants outside component
+const inputClassName =
+  "mt-1 block w-full px-4 py-3 rounded-lg border border-gray-200 shadow-sm focus:outline-none bg-gray-50 text-gray-700 placeholder-gray-400";
+const labelClassName =
+  "block text-md font-bold text-slate-700 mb-1.5 flex items-center";
+const errorClassName = "mt-1 text-sm text-red-400 flex items-center gap-1";
+
+const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const router = useRouter();
 
-  const handleSubmit = (values: UserProfile) => {
-    localStorage.setItem('userProfile', JSON.stringify(values));
-    router.push('/'); 
+  const isEditing = mode === "edit";
+
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedProfile) {
+      setProfile(JSON.parse(storedProfile));
+    }
+  }, []);
+
+  const handleEdit = (values: UserProfile) => {
+    // Check if there are any changes
+    const hasChanges = Object.keys(values).some(
+      (key) =>
+        values[key as keyof UserProfile] !== profile?.[key as keyof UserProfile]
+    );
+
+    if (!hasChanges) {
+      if (handleClose) {
+        handleClose();
+      }
+      return;
+    }
+
+    localStorage.setItem("userProfile", JSON.stringify(values));
+    setProfile(values);
+    setAlertMessage("Profile successfully updated!");
+    setShowAlert(true);
   };
 
-  const inputClassName = "mt-1 block w-full px-4 py-3 rounded-lg border border-gray-200 shadow-sm focus:outline-none bg-gray-50 text-gray-700 placeholder-gray-400";
+  const handleSignOut = () => {
+    localStorage.removeItem("userProfile");
+    setProfile(null);
+    if (handleClose) {
+      handleClose();
+    }
+    window.location.href = "/";
+  };
 
-  const labelClassName = "block text-md font-bold text-gray-600 mb-1.5 flex items-center";
-
-  const errorClassName = "mt-1 text-sm text-red-400 flex items-center gap-1";
+  const handleSubmit = useCallback(
+    (values: UserProfile) => {
+      localStorage.setItem("userProfile", JSON.stringify(values));
+      router.push("/");
+    },
+    [router]
+  );
 
   return (
     <div className="w-full">
+      {showAlert && (
+        <CustomAlert
+          message={alertMessage}
+          onClose={() => setShowAlert(false)}
+        />
+      )}
       <Formik
-        initialValues={initialValues}
+        initialValues={isEditing && profile ? profile : initialValues}
         validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        onSubmit={(values) => {
+          console.log("Form submitted with values:", values);
+          console.log("Current mode:", mode);
+          isEditing ? handleEdit(values) : handleSubmit(values);
+        }}
+        enableReinitialize
       >
         {({ isSubmitting }) => (
           <Form className="space-y-7">
@@ -109,11 +189,20 @@ const AuthForm = () => {
             </div>
             <button
               type="submit"
-              disabled={isSubmitting}
+              //disabled={isSubmitting}
               className="w-full bg-blue-600 text-white px-8 py-3 rounded-lg font-medium"
             >
-              {isSubmitting ? 'Creating Profile...' : 'Create Profile'}
+              {isEditing ? "Edit Profile" : "Create Profile"}
             </button>
+            {isEditing && (
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="w-full text-red-500 hover:text-red-400 font-medium transition-colors"
+              >
+                Sign Out
+              </button>
+            )}
           </Form>
         )}
       </Formik>
@@ -121,4 +210,4 @@ const AuthForm = () => {
   );
 };
 
-export default AuthForm; 
+export default AuthForm;

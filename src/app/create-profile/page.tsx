@@ -25,7 +25,7 @@ export default function CreateProfile() {
           </p>
         </div>
         <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-[600px] mx-auto px-4 py-5 sm:p-8">
-          <AuthForm />
+          <AuthForm mode={"create"} />
         </div>
       </div>
     </div>

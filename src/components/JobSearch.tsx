@@ -28,7 +28,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
   const [page, setPage] = useState<number>(1);
 
-  const { jobs = [], isLoading, isError } = useJobs({
+  const { jobs = [], isLoading, isError, error } = useJobs({
     query: searchQuery || "developer jobs",
     page,
   });
@@ -67,9 +67,12 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
   if (isError) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
-        <p className="text-red-600">
-          Error loading jobs. Please try again later.
-        </p>
+        <p className="text-red-600 mb-4">{error}</p>
+        {error?.includes('Too many requests') && (
+          <p className="text-gray-600">
+            Please wait a moment before trying again.
+          </p>
+        )}
       </div>
     );
   }
