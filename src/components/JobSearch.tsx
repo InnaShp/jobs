@@ -15,14 +15,9 @@ export interface Job {
   job_country: string;
   job_apply_link: string;
   job_employment_type: string;
-  job_min_salary?: number;
-  job_max_salary?: number;
+  job_salary?: number;
   job_salary_currency?: string;
   job_posted_at_datetime_utc?: string;
-  job_highlights?: {
-    Qualifications?: string[];
-    Responsibilities?: string[];
-  };
 }
 
 interface JobSearchProps {
@@ -30,7 +25,7 @@ interface JobSearchProps {
 }
 
 const JobSearch = ({ searchQuery }: JobSearchProps) => {
-  const [likedJobs, setLikedJobs] = useState<string[]>([]);
+  const [likedJobs, setLikedJobs] = useState<Job[]>([]);
 
   const { jobs } = useJobs({
     query: "developer jobs in chicago",
@@ -38,15 +33,15 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
 
   useEffect(() => {
     // Load liked jobs from localStorage
-    const likedJobIds = JSON.parse(localStorage.getItem("likedJobs") || "[]");
-    setLikedJobs(likedJobIds);
+    const likedJobsData = JSON.parse(localStorage.getItem("likedJobs") || "[]");
+    setLikedJobs(likedJobsData);
   }, []);
 
-  const toggleLike = (jobId: string, e: React.MouseEvent) => {
+  const toggleLike = (job: Job, e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation when clicking the like button
-    const newLikedJobs = likedJobs.includes(jobId)
-      ? likedJobs.filter((id) => id !== jobId)
-      : [...likedJobs, jobId];
+    const newLikedJobs = likedJobs.some(likedJob => likedJob.job_id === job.job_id)
+      ? likedJobs.filter(likedJob => likedJob.job_id !== job.job_id)
+      : [...likedJobs, job];
 
     setLikedJobs(newLikedJobs);
     localStorage.setItem("likedJobs", JSON.stringify(newLikedJobs));
@@ -88,14 +83,14 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
                       {job.job_employment_type}
                     </span>
                     <button
-                      onClick={(e) => toggleLike(job.job_id, e)}
+                      onClick={(e) => toggleLike(job, e)}
                       className={`text-gray-400 hover:text-red-500 transition-colors ${
-                        likedJobs.includes(job.job_id) ? "text-red-500" : ""
+                        likedJobs.some(likedJob => likedJob.job_id === job.job_id) ? "text-red-500" : ""
                       }`}
                     >
                       <Heart
                         className={`h-6 w-6 ${
-                          likedJobs.includes(job.job_id) ? "fill-current" : ""
+                          likedJobs.some(likedJob => likedJob.job_id === job.job_id) ? "fill-current" : ""
                         }`}
                       />
                     </button>

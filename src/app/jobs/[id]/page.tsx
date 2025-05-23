@@ -7,25 +7,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useJobById } from "@/hooks/useJobById";
 
-export interface Job {
-  job_id: string;
-  employer_name: string;
-  employer_logo: string | null;
-  job_title: string;
-  job_description: string;
-  job_city: string;
-  job_country: string;
-  job_apply_link: string;
-  job_employment_type: string;
-  job_salary?: number;
-  job_salary_currency?: string;
-  job_posted_at_datetime_utc?: string;
-  job_highlights?: {
-    Qualifications?: string[];
-    Responsibilities?: string[];
-  };
-}
-
 export default function JobDetails() {
   const { id } = useParams();
 
