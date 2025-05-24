@@ -1,8 +1,8 @@
-import useSWR from 'swr';
-import { fetcher } from '@/lib/fetcher';
-import { Job } from '@/components/JobSearch';
-import { useCallback, useState, useEffect } from 'react';
-import { UserProfile } from '@/components/AuthForm';
+import useSWR from "swr";
+import { fetcher } from "@/lib/fetcher";
+import { Job } from "@/components/JobSearch";
+import { useCallback, useState, useEffect } from "react";
+import { UserProfile } from "@/components/AuthForm";
 
 export interface UseJobsOptions {
   query: string;
@@ -17,50 +17,41 @@ const useJobs = ({
   query,
   page = 1,
   numPages = 1,
-  country = 'us',
-  datePosted = 'all',
+  country = "us",
+  datePosted = "all",
   userProfile = null,
 }: UseJobsOptions) => {
-  const [debouncedQuery, setDebouncedQuery] = useState(query);
-
-  // Debounce the search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 500); // 500ms delay
-
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  const shouldFetch = debouncedQuery !== '';
-
-  // If user has a profile and no search query, use their desired job title
-  const searchQuery = shouldFetch ? debouncedQuery : userProfile?.desiredJobTitle || 'developer jobs';
-  const encodedQuery = encodeURIComponent(searchQuery);
-
+  // Don't make the request if query is empty
+  const shouldFetch = query.trim() !== "";
+  const encodedQuery = encodeURIComponent(query);
   const endpoint = `/search?query=${encodedQuery}&page=${page}&num_pages=${numPages}&country=${country}&date_posted=${datePosted}`;
 
-  const { data, error, isLoading } = useSWR(endpoint, fetcher, {
-    revalidateOnFocus: false, // Disable revalidation on window focus
-    revalidateOnReconnect: false, // Disable revalidation on reconnect
-    dedupingInterval: 60000, // Dedupe requests within 1 minute
-    errorRetryCount: 3, // Retry failed requests 3 times
-    errorRetryInterval: 5000, // Wait 5 seconds between retries
-    onError: (err) => {
-      if (err.response?.status === 429) {
-        console.warn('Rate limit exceeded. Please try again later.');
-      }
-    },
-  });
+  const { data, error, isLoading } = useSWR(
+    shouldFetch ? endpoint : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000,
+      errorRetryCount: 1,
+      errorRetryInterval: 5000,
+      onError: (err) => {
+        if (err.response?.status === 429) {
+          console.warn("Rate limit exceeded. Please try again later.");
+        }
+      },
+    }
+  );
 
   return {
-    jobs: data?.data ?? [] as Job[],
+    jobs: data?.data ?? ([] as Job[]),
     totalJobs: data?.total_jobs ?? 0,
     isLoading,
     isError: !!error,
-    error: error?.response?.status === 429 
-      ? 'Too many requests. Please try again later.' 
-      : error?.message || 'An error occurred while fetching jobs.',
+    error:
+      error?.response?.status === 429
+        ? "Too many requests. Please try again later."
+        : error?.message || "An error occurred while fetching jobs.",
   };
 };
 

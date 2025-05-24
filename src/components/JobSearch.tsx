@@ -29,36 +29,47 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
   const [page, setPage] = useState<number>(1);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [debouncedQuery, setDebouncedQuery] = useState("");
 
+  // Load user profile
   useEffect(() => {
-    // Load user profile from localStorage
     const storedProfile = localStorage.getItem("userProfile");
     if (storedProfile) {
       setUserProfile(JSON.parse(storedProfile));
     }
   }, []);
 
-  const { jobs = [], isLoading, isError, error } = useJobs({
-    query: searchQuery,
-    page,
-    userProfile,
-  });
-
+  // Load liked jobs
   useEffect(() => {
-    // Load liked jobs from localStorage
     const likedJobsData = JSON.parse(localStorage.getItem("likedJobs") || "[]");
     setLikedJobs(likedJobsData);
   }, []);
 
+  // Handle scroll on page change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
 
+  // Debounce search query
+  useEffect(() => {
+    const query = searchQuery || userProfile?.desiredJobTitle || "developer";
+    const timer = setTimeout(() => {
+      if (query.trim()) {
+        setDebouncedQuery(query);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, userProfile?.desiredJobTitle]);
+
+  // Get jobs using the debounced query
+  const { jobs = [], isLoading, isError, error } = useJobs({
+    query: debouncedQuery,
+    page,
+  });
+
   const toggleLike = (job: Job, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation when clicking the like button
-    const newLikedJobs = likedJobs.some(
-      (likedJob) => likedJob.job_id === job.job_id
-    )
+    e.preventDefault();
+    const newLikedJobs = likedJobs.some((likedJob) => likedJob.job_id === job.job_id)
       ? likedJobs.filter((likedJob) => likedJob.job_id !== job.job_id)
       : [...likedJobs, job];
 
@@ -79,7 +90,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
         <p className="text-red-600 mb-4">{error}</p>
-        {error?.includes('Too many requests') && (
+        {error?.includes("Too many requests") && (
           <p className="text-gray-600">
             Please wait a moment before trying again.
           </p>
@@ -92,7 +103,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     return (
       <div className="max-w-4xl mx-auto mb-8">
         <div className="text-center text-gray-500 py-8">
-          No jobs found matching "{searchQuery || userProfile?.desiredJobTitle || "developer jobs"}"
+          No jobs found matching "{debouncedQuery || searchQuery || userProfile?.desiredJobTitle || "developer"}"
         </div>
       </div>
     );
@@ -103,11 +114,11 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
       <div className="space-y-4">
         <div className="text-sm text-gray-600 mb-4">
           Found {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
-          {searchQuery 
+          {searchQuery
             ? ` matching "${searchQuery}"`
-            : userProfile 
-              ? ` matching your profile preferences`
-              : " matching default search"}
+            : userProfile
+            ? ` matching your profile preferences`
+            : " matching default search"}
         </div>
         {jobs.map((job: Job) => (
           <Link
@@ -139,18 +150,14 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
                 <button
                   onClick={(e) => toggleLike(job, e)}
                   className={`text-gray-400 hover:text-red-500 transition-colors ${
-                    likedJobs.some(
-                      (likedJob) => likedJob.job_id === job.job_id
-                    )
+                    likedJobs.some((likedJob) => likedJob.job_id === job.job_id)
                       ? "text-red-500"
                       : ""
                   }`}
                 >
                   <Heart
                     className={`h-6 w-6 ${
-                      likedJobs.some(
-                        (likedJob) => likedJob.job_id === job.job_id
-                      )
+                      likedJobs.some((likedJob) => likedJob.job_id === job.job_id)
                         ? "fill-current"
                         : ""
                     }`}
