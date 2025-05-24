@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as Yup from "yup";
 import { CustomAlert } from "./Alert";
 
-interface UserProfile {
+export interface UserProfile {
   name: string;
   desiredJobTitle: string;
   aboutMe: string;
@@ -61,7 +61,9 @@ const errorClassName = "mt-1 text-sm text-red-400 flex items-center gap-1";
 
 const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
+
   const [showAlert, setShowAlert] = useState(false);
+
   const [alertMessage, setAlertMessage] = useState("");
 
   const router = useRouter();

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Menu, Search, User, X } from "lucide-react";
 import Link from "next/link";
-import { Search, User, Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { UserProfile } from "./AuthForm";
 import ProfileModal from "./ProfileModal";
 
 interface HeaderProps {
@@ -12,9 +14,20 @@ interface HeaderProps {
 const Header = ({ onSearch }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedProfile) {
+      setProfile(JSON.parse(storedProfile));
+    }
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
@@ -25,6 +38,10 @@ const Header = ({ onSearch }: HeaderProps) => {
   const toggleProfileModal = () => {
     setIsProfileModalOpen(!isProfileModalOpen);
     setIsMenuOpen(false);
+  };
+
+  const handleRedirect = () => {
+    router.push("/create-profile");
   };
 
   return (
@@ -61,12 +78,12 @@ const Header = ({ onSearch }: HeaderProps) => {
               >
                 Favorites
               </Link>
-              <button 
-                onClick={toggleProfileModal}
+              <button
+                onClick={profile ? toggleProfileModal : handleRedirect}
                 className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
               >
                 <User className="h-5 w-5" />
-                <span>Account</span>
+                <span>{profile ? profile.name : "Account"}</span>
               </button>
             </div>
 
@@ -95,12 +112,12 @@ const Header = ({ onSearch }: HeaderProps) => {
                 >
                   Favorites
                 </Link>
-                <button 
-                  onClick={toggleProfileModal}
+                <button
+                  onClick={profile ? toggleProfileModal : handleRedirect}
                   className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-blue-600 w-full"
                 >
                   <User className="h-5 w-5" />
-                  <span>Account</span>
+                  <span>{profile ? profile.name : "Account"}</span>
                 </button>
               </div>
             </div>
@@ -108,9 +125,9 @@ const Header = ({ onSearch }: HeaderProps) => {
         </div>
       </header>
 
-      <ProfileModal 
-        isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)} 
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
       />
     </>
   );
