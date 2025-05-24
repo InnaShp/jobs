@@ -18,23 +18,6 @@ interface AuthFormProps {
   handleClose?: () => void;
 }
 
-const alertStyles = `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fade-in {
-    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-`;
-
 const validationSchema = Yup.object().shape({
   name: Yup.string()
     .min(2, "Name must be at least 2 characters")
@@ -118,7 +101,11 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
         initialValues={isEditing && profile ? profile : initialValues}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          isEditing ? handleEdit(values) : handleSubmit(values);
+          if (isEditing) {
+            handleEdit(values);
+          } else {
+            handleSubmit(values);
+          }
         }}
         enableReinitialize
       >

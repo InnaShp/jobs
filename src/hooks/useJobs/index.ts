@@ -1,4 +1,3 @@
-import { UserProfile } from "@/components/AuthForm";
 import { Job } from "@/components/JobSearch";
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
@@ -9,7 +8,6 @@ export interface UseJobsOptions {
   numPages?: number;
   country?: string;
   datePosted?: string;
-  userProfile?: UserProfile | null;
 }
 
 const useJobs = ({
@@ -18,7 +16,6 @@ const useJobs = ({
   numPages = 1,
   country = "us",
   datePosted = "all",
-  userProfile = null,
 }: UseJobsOptions) => {
   // Don't make the request if query is empty
   const shouldFetch = query.trim() !== "";

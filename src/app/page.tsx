@@ -1,6 +1,5 @@
 "use client";
 
-import { UserProfile } from "@/components/AuthForm";
 import Header from "@/components/Header";
 import JobSearch from "@/components/JobSearch";
 import Link from "next/link";
@@ -9,12 +8,10 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const storedProfile = localStorage.getItem("userProfile");
     if (storedProfile) {
-      setUserProfile(JSON.parse(storedProfile));
       setIsAuthenticated(true);
     }
   }, []);

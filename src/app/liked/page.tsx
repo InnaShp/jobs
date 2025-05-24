@@ -83,7 +83,7 @@ export default function LikedJobs() {
         </div>
       ) : (
         <div className="text-center text-gray-500 py-8">
-          <p className="mb-4">You haven't liked any jobs yet.</p>
+          <p className="mb-4">You haven&apos;t liked any jobs yet.</p>
           <Link 
             href="/"
             className="text-blue-600 hover:text-blue-800 font-medium"
