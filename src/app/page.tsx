@@ -4,14 +4,19 @@ import Header from "@/components/Header";
 import JobSearch from "@/components/JobSearch";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { UserProfile } from "@/components/AuthForm";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const storedProfile = localStorage.getItem("userProfile");
-    setIsAuthenticated(!!storedProfile);
+    if (storedProfile) {
+      setUserProfile(JSON.parse(storedProfile));
+      setIsAuthenticated(true);
+    }
   }, []);
 
   const handleSearch = (query: string) => {
@@ -44,7 +49,7 @@ export default function Home() {
           </div>
         </div>
       </main>
-      {/* <JobSearch searchQuery={searchQuery} /> */}
+      <JobSearch searchQuery={searchQuery} />
     </div>
   );
 }

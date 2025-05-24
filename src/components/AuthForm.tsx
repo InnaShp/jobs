@@ -126,8 +126,6 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
         initialValues={isEditing && profile ? profile : initialValues}
         validationSchema={validationSchema}
         onSubmit={(values) => {
-          console.log("Form submitted with values:", values);
-          console.log("Current mode:", mode);
           isEditing ? handleEdit(values) : handleSubmit(values);
         }}
         enableReinitialize

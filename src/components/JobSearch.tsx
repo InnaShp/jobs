@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import useJobs from "@/hooks/useJobs";
+import { UserProfile } from "./AuthForm";
 
 export interface Job {
   job_id: string;
@@ -27,10 +28,20 @@ interface JobSearchProps {
 const JobSearch = ({ searchQuery }: JobSearchProps) => {
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
   const [page, setPage] = useState<number>(1);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    // Load user profile from localStorage
+    const storedProfile = localStorage.getItem("userProfile");
+    if (storedProfile) {
+      setUserProfile(JSON.parse(storedProfile));
+    }
+  }, []);
 
   const { jobs = [], isLoading, isError, error } = useJobs({
-    query: searchQuery || "developer jobs",
+    query: searchQuery,
     page,
+    userProfile,
   });
 
   useEffect(() => {
@@ -81,7 +92,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     return (
       <div className="max-w-4xl mx-auto mb-8">
         <div className="text-center text-gray-500 py-8">
-          No jobs found matching "{searchQuery || "developer jobs"}"
+          No jobs found matching "{searchQuery || userProfile?.desiredJobTitle || "developer jobs"}"
         </div>
       </div>
     );
@@ -92,7 +103,11 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
       <div className="space-y-4">
         <div className="text-sm text-gray-600 mb-4">
           Found {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
-          {searchQuery && ` matching "${searchQuery}"`}
+          {searchQuery 
+            ? ` matching "${searchQuery}"`
+            : userProfile 
+              ? ` matching your profile preferences`
+              : " matching default search"}
         </div>
         {jobs.map((job: Job) => (
           <Link

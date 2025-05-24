@@ -2,6 +2,7 @@ import useSWR from 'swr';
 import { fetcher } from '@/lib/fetcher';
 import { Job } from '@/components/JobSearch';
 import { useCallback, useState, useEffect } from 'react';
+import { UserProfile } from '@/components/AuthForm';
 
 export interface UseJobsOptions {
   query: string;
@@ -9,6 +10,7 @@ export interface UseJobsOptions {
   numPages?: number;
   country?: string;
   datePosted?: string;
+  userProfile?: UserProfile | null;
 }
 
 const useJobs = ({
@@ -17,6 +19,7 @@ const useJobs = ({
   numPages = 1,
   country = 'us',
   datePosted = 'all',
+  userProfile = null,
 }: UseJobsOptions) => {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
@@ -31,11 +34,11 @@ const useJobs = ({
 
   const shouldFetch = debouncedQuery !== '';
 
-  const encodedQuery = encodeURIComponent(debouncedQuery);
+  // If user has a profile and no search query, use their desired job title
+  const searchQuery = shouldFetch ? debouncedQuery : userProfile?.desiredJobTitle || 'developer jobs';
+  const encodedQuery = encodeURIComponent(searchQuery);
 
-  const endpoint = shouldFetch
-    ? `/search?query=${encodedQuery}&page=${page}&num_pages=${numPages}&country=${country}&date_posted=${datePosted}`
-    : null;
+  const endpoint = `/search?query=${encodedQuery}&page=${page}&num_pages=${numPages}&country=${country}&date_posted=${datePosted}`;
 
   const { data, error, isLoading } = useSWR(endpoint, fetcher, {
     revalidateOnFocus: false, // Disable revalidation on window focus
