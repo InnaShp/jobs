@@ -1,8 +1,7 @@
-import useSWR from "swr";
-import { fetcher } from "@/lib/fetcher";
-import { Job } from "@/components/JobSearch";
-import { useCallback, useState, useEffect } from "react";
 import { UserProfile } from "@/components/AuthForm";
+import { Job } from "@/components/JobSearch";
+import { fetcher } from "@/lib/fetcher";
+import useSWR from "swr";
 
 export interface UseJobsOptions {
   query: string;

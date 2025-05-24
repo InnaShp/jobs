@@ -61,13 +61,9 @@ const errorClassName = "mt-1 text-sm text-red-400 flex items-center gap-1";
 
 const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-
   const [showAlert, setShowAlert] = useState(false);
-
   const [alertMessage, setAlertMessage] = useState("");
-
   const router = useRouter();
-
   const isEditing = mode === "edit";
 
   useEffect(() => {
@@ -85,9 +81,7 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
     );
 
     if (!hasChanges) {
-      if (handleClose) {
-        handleClose();
-      }
+      handleClose?.();
       return;
     }
 
@@ -100,9 +94,7 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
   const handleSignOut = () => {
     localStorage.removeItem("userProfile");
     setProfile(null);
-    if (handleClose) {
-      handleClose();
-    }
+    handleClose?.();
     window.location.href = "/";
   };
 
@@ -130,7 +122,7 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
         }}
         enableReinitialize
       >
-        {({ isSubmitting }) => (
+        {() => (
           <Form className="space-y-7">
             <div>
               <label htmlFor="name" className={labelClassName}>
@@ -189,7 +181,6 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
             </div>
             <button
               type="submit"
-              //disabled={isSubmitting}
               className="w-full bg-blue-600 text-white px-8 py-3 rounded-lg font-medium"
             >
               {isEditing ? "Edit Profile" : "Create Profile"}
@@ -198,7 +189,7 @@ const AuthForm = ({ mode = "create", handleClose }: AuthFormProps) => {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="w-full text-red-500 hover:text-red-400 font-medium transition-colors"
+                className="w-full bg-red-600 text-white px-8 py-3 rounded-lg font-medium mt-4"
               >
                 Sign Out
               </button>

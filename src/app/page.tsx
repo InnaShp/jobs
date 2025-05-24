@@ -1,10 +1,10 @@
 "use client";
 
+import { UserProfile } from "@/components/AuthForm";
 import Header from "@/components/Header";
 import JobSearch from "@/components/JobSearch";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { UserProfile } from "@/components/AuthForm";
 
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

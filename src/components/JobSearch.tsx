@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import useJobs from "@/hooks/useJobs";
 import { UserProfile } from "./AuthForm";
@@ -103,7 +104,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
     return (
       <div className="max-w-4xl mx-auto mb-8">
         <div className="text-center text-gray-500 py-8">
-          No jobs found matching "{debouncedQuery || searchQuery || userProfile?.desiredJobTitle || "developer"}"
+          No jobs found matching &ldquo;{debouncedQuery || searchQuery || userProfile?.desiredJobTitle || "developer"}&rdquo;
         </div>
       </div>
     );
@@ -115,7 +116,7 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
         <div className="text-sm text-gray-600 mb-4">
           Found {jobs.length} {jobs.length === 1 ? "job" : "jobs"}
           {searchQuery
-            ? ` matching "${searchQuery}"`
+            ? ` matching &ldquo;${searchQuery}&rdquo;`
             : userProfile
             ? ` matching your profile preferences`
             : " matching default search"}
@@ -128,13 +129,15 @@ const JobSearch = ({ searchQuery }: JobSearchProps) => {
           >
             <div className="flex justify-between items-start">
               <div className="flex items-start space-x-4">
-                <img
+                <Image
                   src={
                     job.employer_logo ||
                     "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"
                   }
                   alt={`${job.employer_name} logo`}
-                  className="w-12 h-12 rounded-lg object-cover"
+                  width={48}
+                  height={48}
+                  className="rounded-lg object-cover"
                 />
                 <div>
                   <h3 className="text-xl font-semibold text-gray-900">

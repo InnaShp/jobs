@@ -1,17 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Heart } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 import { useJobById } from "@/hooks/useJobById";
+import { ArrowLeft, Heart } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function JobDetails() {
   const { id } = useParams();
-
-  const { job, isLoading, isError } = useJobById(id as string);
-
+  const { job } = useJobById(id as string);
   const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
@@ -58,10 +56,12 @@ export default function JobDetails() {
       <div className="bg-white rounded-lg shadow-md p-8">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-start space-x-4">
-            <img
+            <Image
               src={job.employer_logo || "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"}
               alt={`${job.employer_name} logo`}
-              className="w-16 h-16 rounded-lg object-cover"
+              width={64}
+              height={64}
+              className="rounded-lg object-cover"
             />
             <div>
               <h2 className="text-3xl font-bold text-gray-900">

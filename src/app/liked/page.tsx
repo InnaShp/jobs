@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { Job } from '@/components/JobSearch';
 
@@ -45,10 +46,12 @@ export default function LikedJobs() {
             <div key={job.job_id} className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex justify-between items-start">
                 <div className="flex items-start space-x-4">
-                  <img
+                  <Image
                     src={job.employer_logo || "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"}
                     alt={`${job.employer_name} logo`}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    width={48}
+                    height={48}
+                    className="rounded-lg object-cover"
                   />
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900">{job.job_title}</h3>

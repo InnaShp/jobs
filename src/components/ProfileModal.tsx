@@ -1,9 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
 import AuthForm from "./AuthForm";
 
 interface ProfileModalProps {
