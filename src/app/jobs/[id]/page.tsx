@@ -59,7 +59,7 @@ export default function JobDetails() {
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-start space-x-4">
             <img
-              src={job.employer_logo}
+              src={job.employer_logo || "https://icons.veryicon.com/png/o/business/oa-attendance-icon/company-27.png"}
               alt={`${job.employer_name} logo`}
               className="w-16 h-16 rounded-lg object-cover"
             />
